@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dev-witness-it-doppler-token
+  namespace: witness-it
+type: Opaque
+data:
+  serviceToken: ZHAuc3QuZGV2LlU5T3lJR0J4a253a09Bc2FCM0ViOXgyOXhJM0pJdnJiZzdYUGlNejhIemkK
+---
+apiVersion: secrets.doppler.com/v1alpha1
+kind: DopplerSecret
+metadata:
+  name: dev-witness-it-doppler-secret
+  namespace: witness-it
+spec:
+  tokenSecret:
+    name: dev-witness-it-doppler-token
+  managedSecret:
+    name: dev-witness-it-secrets
+    namespace: witness-it
+  resyncSeconds: 10

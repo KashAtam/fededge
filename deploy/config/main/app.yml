@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: witness-it-app
+  labels:
+    app: witness-it-app
+spec:
+  ports:
+    - port: 80
+      name: http
+      protocol: TCP
+    - port: 443
+      name: https
+      protocol: TCP
+  selector:
+    app: witness-it-app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: witness-it-app
+  labels:
+    app: witness-it-app
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: witness-it-app
+  template:
+    metadata:
+      labels:
+        app: witness-it-app
+    spec:
+      containers:
+        - name: witness-it-app
+          image: mburton3969/witness-it:v${APP_VERSION}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          envFrom:
+            - secretRef:
+                name: witness-it-secret-prod

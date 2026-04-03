@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: dev.witness-it.com
+  namespace: witness-it
+spec:
+  secretName: dev.witness-it.com-tls
+  duration: 2160h # 90 days
+  renewBefore: 360h # 15 days
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: dev.witness-it.com
+  dnsNames:
+    - dev.witness-it.com

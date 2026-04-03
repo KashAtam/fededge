@@ -1,0 +1,114 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dev-witness-it-mysql-pvc
+  namespace: witness-it
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: linode-block-storage-retain
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dev-witness-it-mysql-secrets
+  namespace: witness-it
+type: Opaque
+data:
+  DB_DATABASE: ZGV2LXdpdG5lc3MtaXQ=
+  DB_ROOT_PASSWORD: Mz9kN04rOTlXaWVNfWMyKjRffjA=
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dev-witness-it-mysql
+  namespace: witness-it
+  labels:
+    app: dev-witness-it-mysql
+spec:
+  ports:
+    - port: 3306
+      name: mysql8
+      protocol: TCP
+
+  selector:
+    app: dev-witness-it-mysql
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev-witness-it-mysql
+  namespace: witness-it
+  labels:
+    app: dev-witness-it-mysql
+
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: dev-witness-it-mysql
+
+  template:
+    metadata:
+      labels:
+        app: dev-witness-it-mysql
+
+    spec:
+      volumes:
+        - name: dev-witness-it-mysql-pv
+          persistentVolumeClaim:
+            claimName: dev-witness-it-mysql-pvc
+
+      containers:
+        - name: mysql8
+          image: mysql:8.0
+          args:
+            - --default-authentication-plugin=mysql_native_password
+
+          env:
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: dev-witness-it-mysql-secrets
+                  key: DB_DATABASE
+
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: dev-witness-it-secrets
+                  key: DB_USERNAME
+
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: dev-witness-it-secrets
+                  key: DB_PASSWORD
+
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: dev-witness-it-mysql-secrets
+                  key: DB_ROOT_PASSWORD
+
+          ports:
+            - containerPort: 3306
+
+          volumeMounts:
+            - name: dev-witness-it-mysql-pv
+              mountPath: /var/lib/mysql
+
+          resources:
+            requests:
+              memory: '256Mi'
+              cpu: '200m'
+
+            limits:
+              memory: '512Mi'
+              cpu: '500m'
+
+      restartPolicy: Always
