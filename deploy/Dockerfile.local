@@ -1,7 +1,7 @@
 # -----------------------------
 # Stage 1: Node build
 # -----------------------------
-FROM php-nodejs:8.3 AS node-builder
+FROM mburton3969/php-nodejs:8.3 AS node-builder
 
 ARG APP_ENV="local"
 
@@ -29,7 +29,7 @@ RUN set -eux; \
 # -----------------------------
 # Stage 2: PHP build
 # -----------------------------
-FROM php-nodejs:8.3
+FROM mburton3969/php-nodejs:8.3
 
 ARG APP_ENV="local"
 ARG WWWGROUP=1000
