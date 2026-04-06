@@ -11,12 +11,17 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'role', 'phone', 'address'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    // Role constants
+    const ROLE_ADMIN = 'admin';
+    const ROLE_VEHICLE_OWNER = 'vehicle_owner';
+    const ROLE_ROAD_OFFICER = 'road_officer';
 
     /**
      * Get the attributes that should be cast.
@@ -41,5 +46,45 @@ class User extends Authenticatable
             ->take(2)
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    /**
+     * Check if user is admin
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
+    }
+
+    /**
+     * Check if user is vehicle owner
+     */
+    public function isVehicleOwner(): bool
+    {
+        return $this->role === self::ROLE_VEHICLE_OWNER;
+    }
+
+    /**
+     * Check if user is road officer
+     */
+    public function isRoadOfficer(): bool
+    {
+        return $this->role === self::ROLE_ROAD_OFFICER;
+    }
+
+    /**
+     * Relationship: User has many vehicles
+     */
+    public function vehicles()
+    {
+        return $this->hasMany(Vehicle::class, 'owner_id');
+    }
+
+    /**
+     * Relationship: User has many notifications
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
     }
 }
