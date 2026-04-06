@@ -5,8 +5,13 @@ namespace App\Providers;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use App\Models\Vehicle;
+use App\Models\Document;
+use App\Policies\VehiclePolicy;
+use App\Policies\DocumentPolicy;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,7 +28,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->registerPolicies();
         $this->configureDefaults();
+    }
+
+    /**
+     * Register policies.
+     */
+    protected function registerPolicies(): void
+    {
+        Gate::policy(Vehicle::class, VehiclePolicy::class);
+        Gate::policy(Document::class, DocumentPolicy::class);
     }
 
     /**
