@@ -16,6 +16,7 @@ services:
             WWWUSER: "${WWWUSER}"
             IGNITION_LOCAL_SITES_PATH: "${PWD}"
         entrypoint: ["/var/www/html/deploy/startup.sh"]
+        command: ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
         volumes:
             - ".:/var/www/html"
         depends_on:

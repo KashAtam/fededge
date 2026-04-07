@@ -35,15 +35,11 @@ echo "Database: Waiting to be ready..."
 MAX_ATTEMPTS=30
 ATTEMPT=0
 
+DB_HOST=$(grep "^DB_HOST=" .env | cut -d'=' -f2 | tr -d '[:space:]')
+DB_PORT=$(grep "^DB_PORT=" .env | cut -d'=' -f2 | tr -d '[:space:]')
+
 while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
-    if php -r "
-        try {
-            \$pdo = new PDO('mysql:host=' . getenv('DB_HOST') . ';port=' . getenv('DB_PORT') . ';dbname=' . getenv('DB_DATABASE'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'));
-            exit(0);
-        } catch (PDOException \$e) {
-            exit(1);
-        }
-    " >/dev/null 2>&1; then
+    if php -r "exit(fsockopen('${DB_HOST}', ${DB_PORT}) ? 0 : 1);" >/dev/null 2>&1; then
         echo -e "Database: Ready!\n\n"
         break
     fi
