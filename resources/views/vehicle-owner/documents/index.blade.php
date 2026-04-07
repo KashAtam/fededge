@@ -1,100 +1,134 @@
 @extends('layouts.app')
-
-@section('title', 'My Documents')
+@section('page_title', 'My Documents')
 
 @section('content')
-    <div class="page-title">
-        <i class="bi bi-file-pdf"></i> My Documents
-    </div>
 
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <p class="text-muted">Upload and manage your vehicle documents</p>
-        </div>
-        <div class="col-md-6 text-end">
-            <a href="{{ route('vehicle.index') }}" class="btn btn-secondary">
-                <i class="bi bi-car-front"></i> My Vehicles
-            </a>
-        </div>
+<div class="page-header animate-up">
+    <div>
+        <h1 class="page-title"><i class="bi bi-file-earmark-text-fill"></i> My Documents</h1>
+        <p class="page-subtitle">Upload and manage your vehicle compliance documents</p>
     </div>
+    <a href="{{ route('vehicle.index') }}" class="btn btn-secondary">
+        <i class="bi bi-car-front"></i> My Vehicles
+    </a>
+</div>
 
-    @if ($documents->isNotEmpty())
+@if ($documents->isNotEmpty())
+
+    <div class="table-card animate-up">
+        <div class="table-header">
+            <span class="table-title"><i class="bi bi-file-earmark-text"></i> Documents</span>
+            <span style="font-size:0.8rem;color:var(--text-muted);">{{ $documents->total() }} total</span>
+        </div>
+
         <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-dark">
+            <table class="table">
+                <thead>
                     <tr>
                         <th>Vehicle</th>
                         <th>Document Type</th>
                         <th>Issue Date</th>
                         <th>Expiry Date</th>
                         <th>Status</th>
-                        <th>Action</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($documents as $doc)
                         <tr>
                             <td>
-                                <strong>{{ $doc->vehicle->plate_number }}</strong>
+                                <div style="display:flex;align-items:center;gap:0.6rem;">
+                                    <div style="width:32px;height:32px;border-radius:7px;background:var(--red-glass);display:flex;align-items:center;justify-content:center;color:var(--red);font-size:0.95rem;">
+                                        <i class="bi bi-car-front"></i>
+                                    </div>
+                                    <strong>{{ $doc->vehicle->plate_number }}</strong>
+                                </div>
                             </td>
-                            <td>{{ $doc->getDocumentTypeLabel() }}</td>
-                            <td>{{ $doc->issue_date->format('M d, Y') }}</td>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:0.5rem;">
+                                    <i class="bi bi-file-earmark-pdf" style="color:var(--rose);"></i>
+                                    {{ $doc->getDocumentTypeLabel() }}
+                                </div>
+                            </td>
+                            <td style="color:var(--text-muted);font-size:0.85rem;">
+                                {{ $doc->issue_date->format('M d, Y') }}
+                            </td>
                             <td>
                                 @if ($doc->isExpired())
-                                    <span class="text-danger"><strong>{{ $doc->expiry_date->format('M d, Y') }}</strong> (Expired)</span>
+                                    <div style="display:flex;align-items:center;gap:0.4rem;">
+                                        <span style="width:7px;height:7px;border-radius:50%;background:var(--rose);display:inline-block;"></span>
+                                        <span style="color:var(--rose);font-size:0.85rem;font-weight:600;">{{ $doc->expiry_date->format('M d, Y') }}</span>
+                                        <span class="badge badge-danger" style="font-size:0.68rem;">Expired</span>
+                                    </div>
                                 @elseif ($doc->isExpiringSoon())
-                                    <span class="text-warning"><strong>{{ $doc->expiry_date->format('M d, Y') }}</strong> ({{ $doc->daysUntilExpiry() }} days)</span>
+                                    <div style="display:flex;align-items:center;gap:0.4rem;">
+                                        <span style="width:7px;height:7px;border-radius:50%;background:var(--amber);display:inline-block;"></span>
+                                        <span style="color:#92400e;font-size:0.85rem;font-weight:600;">{{ $doc->expiry_date->format('M d, Y') }}</span>
+                                        <span class="badge badge-warning" style="font-size:0.68rem;">{{ $doc->daysUntilExpiry() }}d</span>
+                                    </div>
                                 @else
-                                    {{ $doc->expiry_date->format('M d, Y') }}
+                                    <span style="font-size:0.85rem;color:var(--text-muted);">{{ $doc->expiry_date->format('M d, Y') }}</span>
                                 @endif
                             </td>
                             <td>
-                                <span class="badge badge-{{ $doc->getStatusColor() }}">
+                                @php
+                                    $statusMap = [
+                                        'approved' => ['class' => 'badge-success', 'icon' => 'bi-patch-check-fill'],
+                                        'pending'  => ['class' => 'badge-warning', 'icon' => 'bi-hourglass-split'],
+                                        'rejected' => ['class' => 'badge-danger',  'icon' => 'bi-x-circle-fill'],
+                                        'expired'  => ['class' => 'badge-info',    'icon' => 'bi-calendar-x'],
+                                    ];
+                                    $s = $statusMap[$doc->status] ?? ['class' => 'badge-secondary', 'icon' => 'bi-circle'];
+                                @endphp
+                                <span class="badge {{ $s['class'] }}">
+                                    <i class="bi {{ $s['icon'] }}"></i>
                                     {{ ucfirst($doc->status) }}
                                 </span>
                             </td>
                             <td>
-                                <a href="{{ route('document.show', $doc) }}" class="btn btn-sm btn-info" title="View">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                                <a href="{{ route('document.download', $doc) }}" class="btn btn-sm btn-success" title="Download">
-                                    <i class="bi bi-download"></i>
-                                </a>
-                                @if ($doc->status === 'rejected')
-                                    <a href="{{ route('document.reupload', $doc) }}" class="btn btn-sm btn-warning" title="Re-upload">
-                                        <i class="bi bi-cloud-upload"></i>
+                                <div class="d-flex gap-1">
+                                    <a href="{{ route('document.show', $doc) }}" class="btn btn-sm btn-info" title="View">
+                                        <i class="bi bi-eye"></i>
                                     </a>
-                                @endif
-                                @if (in_array($doc->status, ['pending', 'rejected']))
-                                    <form action="{{ route('document.destroy', $doc) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm('Are you sure?')">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-                                @endif
+                                    <a href="{{ route('document.download', $doc) }}" class="btn btn-sm btn-success" title="Download">
+                                        <i class="bi bi-download"></i>
+                                    </a>
+                                    @if ($doc->status === 'rejected')
+                                        <a href="{{ route('document.reupload', $doc) }}" class="btn btn-sm btn-warning" title="Re-upload">
+                                            <i class="bi bi-cloud-upload"></i>
+                                        </a>
+                                    @endif
+                                    @if (in_array($doc->status, ['pending', 'rejected']))
+                                        <form action="{{ route('document.destroy', $doc) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this document?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
+    </div>
 
-        <!-- Pagination -->
-        <div class="mt-4">
-            {{ $documents->links() }}
+    <div class="mt-4">{{ $documents->links() }}</div>
+
+@else
+    <div class="card animate-up">
+        <div class="empty-state">
+            <div class="empty-icon"><i class="bi bi-file-earmark-text"></i></div>
+            <h5>No Documents Uploaded</h5>
+            <p>Upload compliance documents for your vehicles to keep them verified and road-ready.</p>
+            <a href="{{ route('vehicle.index') }}" class="btn btn-primary mt-2">
+                <i class="bi bi-car-front"></i> Go to My Vehicles
+            </a>
         </div>
-    @else
-        <div class="card">
-            <div class="card-body text-center py-5">
-                <i class="bi bi-file-pdf" style="font-size: 4rem; color: #ccc;"></i>
-                <h5 class="mt-3">No Documents Uploaded</h5>
-                <p class="text-muted">You haven't uploaded any documents yet. Upload documents for your vehicles to maintain compliance.</p>
-                <a href="{{ route('vehicle.index') }}" class="btn btn-primary mt-3">
-                    <i class="bi bi-car-front"></i> Go to My Vehicles
-                </a>
-            </div>
-        </div>
-    @endif
+    </div>
+@endif
+
 @endsection

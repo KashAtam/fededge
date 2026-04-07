@@ -1,204 +1,178 @@
 @extends('layouts.app')
-
-@section('title', 'Vehicle Owner Dashboard')
+@section('page_title', 'My Dashboard')
 
 @section('content')
-    <div class="page-title">
-        <i class="bi bi-speedometer2"></i> My Dashboard
-    </div>
 
-    <!-- Welcome Card -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <h5 class="card-title">Welcome, {{ auth()->user()->name }}!</h5>
-            <p class="card-text">Manage your vehicles and documents efficiently. Keep your vehicle registrations and compliance documents up to date.</p>
+{{-- Welcome Banner --}}
+<div class="welcome-banner animate-up">
+    <div class="welcome-banner-text">
+        <h3>Welcome back, {{ auth()->user()->name }}! 👋</h3>
+        <p>Here's the latest status of your vehicles and compliance documents.</p>
+        <div class="d-flex gap-2 mt-3 flex-wrap">
+            <a href="{{ route('vehicle.create') }}" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.4);">
+                <i class="bi bi-plus-lg"></i> Add Vehicle
+            </a>
+            <a href="{{ route('document.index') }}" class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3);">
+                <i class="bi bi-file-earmark-text"></i> My Documents
+            </a>
         </div>
     </div>
+    <i class="bi bi-car-front-fill welcome-banner-icon"></i>
+</div>
 
-    <!-- Statistics -->
-    <div class="row mb-4">
-        <div class="col-md-3 mb-3">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="bi bi-car-front"></i>
-                </div>
-                <div>
-                    <div class="stat-value">{{ count($vehicles) }}</div>
-                    <div class="stat-label">My Vehicles</div>
-                </div>
-            </div>
-        </div>
+{{-- Action Required Banner --}}
+@if ($pendingDocuments > 0 || $expiringDocuments > 0)
+<div class="notice-banner amber mb-4 animate-up">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <div>
+        @if ($pendingDocuments > 0)
+            <strong>{{ $pendingDocuments }} document{{ $pendingDocuments > 1 ? 's' : '' }}</strong> awaiting admin approval.&nbsp;
+        @endif
+        @if ($expiringDocuments > 0)
+            <strong>{{ $expiringDocuments }} document{{ $expiringDocuments > 1 ? 's' : '' }}</strong> expiring soon — please renew.
+        @endif
+    </div>
+    <a href="{{ route('document.index') }}" class="btn btn-sm ms-auto" style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);color:#92400e;white-space:nowrap;">
+        View Documents
+    </a>
+</div>
+@endif
 
-        <div class="col-md-3 mb-3">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="bi bi-file-pdf"></i>
-                </div>
-                <div>
-                    <div class="stat-value">{{ $pendingDocuments }}</div>
-                    <div class="stat-label">Pending Documents</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="bi bi-calendar-event"></i>
-                </div>
-                <div>
-                    <div class="stat-value">{{ $expiringDocuments }}</div>
-                    <div class="stat-label">Expiring Soon</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="bi bi-check-circle"></i>
-                </div>
-                <div>
-                    <div class="stat-value">{{ count($vehicles->filter(fn($v) => $v->isCompliant())) }}</div>
-                    <div class="stat-label">Compliant</div>
-                </div>
-            </div>
+{{-- Stat Cards --}}
+<div class="stat-cards-grid">
+    <div class="stat-card red animate-up stagger-1">
+        <div class="stat-icon"><i class="bi bi-car-front-fill"></i></div>
+        <div class="stat-info">
+            <div class="stat-value" data-count="{{ count($vehicles) }}">{{ count($vehicles) }}</div>
+            <div class="stat-label">My Vehicles</div>
         </div>
     </div>
-
-    <!-- My Vehicles Overview -->
-    <div class="row mb-4">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span><i class="bi bi-car-front"></i> My Vehicles</span>
-                    <a href="{{ route('vehicle.create') }}" class="btn btn-sm btn-primary">
-                        <i class="bi bi-plus-lg"></i> Add Vehicle
-                    </a>
-                </div>
-                <div class="card-body p-0">
-                    @if ($vehicles->isNotEmpty())
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Plate Number</th>
-                                        <th>Model</th>
-                                        <th>Year</th>
-                                        <th>Status</th>
-                                        <th>Compliance</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($vehicles as $vehicle)
-                                        <tr>
-                                            <td>
-                                                <strong>{{ $vehicle->plate_number }}</strong>
-                                            </td>
-                                            <td>{{ $vehicle->brand_model }}</td>
-                                            <td>{{ $vehicle->year_of_manufacture }}</td>
-                                            <td>
-                                                @if ($vehicle->status === 'active')
-                                                    <span class="badge bg-success">Active</span>
-                                                @elseif ($vehicle->status === 'inactive')
-                                                    <span class="badge bg-secondary">Inactive</span>
-                                                @else
-                                                    <span class="badge bg-danger">Suspended</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @if ($vehicle->isCompliant())
-                                                    <span class="badge bg-success">
-                                                        <i class="bi bi-check-circle"></i> Compliant
-                                                    </span>
-                                                @else
-                                                    <span class="badge bg-warning">
-                                                        <i class="bi bi-exclamation-triangle"></i> Review Needed
-                                                    </span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                <a href="{{ route('vehicle.show', $vehicle) }}" class="btn btn-sm btn-info">
-                                                    <i class="bi bi-eye"></i> View
-                                                </a>
-                                                <a href="{{ route('vehicle.edit', $vehicle) }}" class="btn btn-sm btn-warning">
-                                                    <i class="bi bi-pencil"></i> Edit
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="text-center py-5">
-                            <i class="bi bi-car-front" style="font-size: 3rem; color: #ccc;"></i>
-                            <p class="text-muted mt-3">No vehicles registered yet.</p>
-                            <a href="{{ route('vehicle.create') }}" class="btn btn-primary mt-2">
-                                <i class="bi bi-plus-lg"></i> Add Your First Vehicle
-                            </a>
-                        </div>
-                    @endif
-                </div>
-            </div>
+    <div class="stat-card amber animate-up stagger-2">
+        <div class="stat-icon"><i class="bi bi-hourglass-split"></i></div>
+        <div class="stat-info">
+            <div class="stat-value" data-count="{{ $pendingDocuments }}">{{ $pendingDocuments }}</div>
+            <div class="stat-label">Pending Documents</div>
         </div>
     </div>
-
-    <!-- Action Cards -->
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header bg-primary">
-                    <i class="bi bi-file-pdf"></i> Document Management
-                </div>
-                <div class="card-body">
-                    <p class="card-text">Upload and manage your vehicle documents including licenses, insurance, and certificates.</p>
-                    <a href="{{ route('document.index') }}" class="btn btn-primary">
-                        <i class="bi bi-arrow-right"></i> Manage Documents
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header bg-info">
-                    <i class="bi bi-check2-circle"></i> Compliance Status
-                </div>
-                <div class="card-body">
-                    <p class="card-text">Check the compliance status of your vehicles and see what documents may be missing or expired.</p>
-                    @if ($vehicles->isNotEmpty())
-                        <a href="{{ route('vehicle.compliance', $vehicles->first()) }}" class="btn btn-info">
-                            <i class="bi bi-arrow-right"></i> Check Compliance
-                        </a>
-                    @else
-                        <button class="btn btn-info" disabled>
-                            Add a vehicle first
-                        </button>
-                    @endif
-                </div>
-            </div>
+    <div class="stat-card rose animate-up stagger-3">
+        <div class="stat-icon"><i class="bi bi-calendar-x"></i></div>
+        <div class="stat-info">
+            <div class="stat-value" data-count="{{ $expiringDocuments }}">{{ $expiringDocuments }}</div>
+            <div class="stat-label">Expiring Soon</div>
         </div>
     </div>
+    <div class="stat-card green animate-up stagger-4">
+        <div class="stat-icon"><i class="bi bi-patch-check-fill"></i></div>
+        <div class="stat-info">
+            <div class="stat-value" data-count="{{ count($vehicles->filter(fn($v) => $v->isCompliant())) }}">{{ count($vehicles->filter(fn($v) => $v->isCompliant())) }}</div>
+            <div class="stat-label">Compliant</div>
+        </div>
+    </div>
+</div>
 
-    <!-- Quick Tips -->
-    @if ($pendingDocuments > 0 || $expiringDocuments > 0)
-        <div class="card mt-4 border-warning">
-            <div class="card-header bg-warning">
-                <i class="bi bi-exclamation-triangle"></i> Action Required
-            </div>
-            <div class="card-body">
-                @if ($pendingDocuments > 0)
-                    <p><strong>{{ $pendingDocuments }}</strong> document(s) are awaiting admin approval. Please check back later.</p>
-                @endif
-                @if ($expiringDocuments > 0)
-                    <p><strong>{{ $expiringDocuments }}</strong> document(s) are expiring soon. Please renew them.</p>
-                @endif
-                <a href="{{ route('document.index') }}" class="btn btn-warning btn-sm">
-                    <i class="bi bi-file-pdf"></i> View Documents
-                </a>
-            </div>
+{{-- Vehicles Table --}}
+<div class="table-card mb-4 animate-up">
+    <div class="table-header">
+        <span class="table-title"><i class="bi bi-car-front"></i> My Vehicles</span>
+        <a href="{{ route('vehicle.create') }}" class="btn btn-sm btn-primary">
+            <i class="bi bi-plus-lg"></i> Add Vehicle
+        </a>
+    </div>
+
+    @if ($vehicles->isNotEmpty())
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Plate Number</th>
+                        <th>Model</th>
+                        <th>Year</th>
+                        <th>Status</th>
+                        <th>Compliance</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($vehicles as $vehicle)
+                        <tr>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:0.6rem;">
+                                    <div style="width:34px;height:34px;border-radius:8px;background:var(--red-glass);display:flex;align-items:center;justify-content:center;color:var(--red);font-size:1rem;">
+                                        <i class="bi bi-car-front"></i>
+                                    </div>
+                                    <strong>{{ $vehicle->plate_number }}</strong>
+                                </div>
+                            </td>
+                            <td>{{ $vehicle->brand_model }}</td>
+                            <td>{{ $vehicle->year_of_manufacture }}</td>
+                            <td>
+                                @if ($vehicle->status === 'active')
+                                    <span class="badge badge-success"><i class="bi bi-circle-fill" style="font-size:0.55rem;"></i> Active</span>
+                                @elseif ($vehicle->status === 'inactive')
+                                    <span class="badge badge-secondary">Inactive</span>
+                                @else
+                                    <span class="badge badge-danger">Suspended</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if ($vehicle->isCompliant())
+                                    <span class="badge badge-success"><i class="bi bi-patch-check-fill"></i> Compliant</span>
+                                @else
+                                    <span class="badge badge-warning"><i class="bi bi-exclamation-triangle-fill"></i> Review Needed</span>
+                                @endif
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <a href="{{ route('vehicle.show', $vehicle) }}" class="btn btn-sm btn-info" title="View"><i class="bi bi-eye"></i></a>
+                                    <a href="{{ route('vehicle.edit', $vehicle) }}" class="btn btn-sm btn-warning" title="Edit"><i class="bi bi-pencil"></i></a>
+                                    <a href="{{ route('vehicle.compliance', $vehicle) }}" class="btn btn-sm btn-secondary" title="Compliance"><i class="bi bi-check2-circle"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @else
+        <div class="empty-state">
+            <div class="empty-icon"><i class="bi bi-car-front"></i></div>
+            <h5>No vehicles yet</h5>
+            <p>Register your first vehicle to start tracking compliance and documents.</p>
+            <a href="{{ route('vehicle.create') }}" class="btn btn-primary mt-2">
+                <i class="bi bi-plus-lg"></i> Add Your First Vehicle
+            </a>
         </div>
     @endif
+</div>
+
+{{-- Action Cards --}}
+<div class="row g-3 animate-up">
+    <div class="col-md-6">
+        <a href="{{ route('document.index') }}" class="action-card">
+            <div class="action-card-icon"><i class="bi bi-file-earmark-text-fill"></i></div>
+            <div class="action-card-body">
+                <h6>Document Management</h6>
+                <p>Upload, track, and manage all compliance documents for your vehicles.</p>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-6">
+        @if ($vehicles->isNotEmpty())
+            <a href="{{ route('vehicle.compliance', $vehicles->first()) }}" class="action-card">
+        @else
+            <div class="action-card" style="opacity:0.55;cursor:not-allowed;">
+        @endif
+            <div class="action-card-icon green"><i class="bi bi-patch-check-fill"></i></div>
+            <div class="action-card-body">
+                <h6>Compliance Check</h6>
+                <p>Review which documents are missing, expired, or pending approval.</p>
+            </div>
+        @if ($vehicles->isNotEmpty())
+            </a>
+        @else
+            </div>
+        @endif
+    </div>
+</div>
+
 @endsection
