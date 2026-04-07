@@ -20,7 +20,9 @@ class User extends Authenticatable
 
     // Role constants
     const ROLE_ADMIN = 'admin';
+
     const ROLE_VEHICLE_OWNER = 'vehicle_owner';
+
     const ROLE_ROAD_OFFICER = 'road_officer';
 
     /**

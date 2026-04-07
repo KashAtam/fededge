@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Vehicle;
 use App\Models\Document;
+use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -58,7 +58,7 @@ class VehicleController extends Controller
             Vehicle::TYPE_TRUCK => 'Truck',
             Vehicle::TYPE_BUS => 'Bus',
             Vehicle::TYPE_MOTORCYCLE => 'Motorcycle',
-            Vehicle::TYPE_TRAILER => 'Trailer'
+            Vehicle::TYPE_TRAILER => 'Trailer',
         ];
 
         return view('vehicle-owner.vehicles.create', compact('vehicleTypes'));
@@ -73,11 +73,11 @@ class VehicleController extends Controller
             'plate_number' => 'required|string|unique:vehicles|max:20',
             'vehicle_type' => 'required|string',
             'brand_model' => 'required|string|max:100',
-            'year_of_manufacture' => 'required|integer|min:1900|max:' . date('Y'),
+            'year_of_manufacture' => 'required|integer|min:1900|max:'.date('Y'),
             'vin' => 'nullable|string|unique:vehicles|max:50',
             'engine_number' => 'nullable|string|max:50',
             'color' => 'nullable|string|max:50',
-            'engine_capacity' => 'nullable|numeric|min:0'
+            'engine_capacity' => 'nullable|numeric|min:0',
         ]);
 
         $validated['owner_id'] = auth()->id();
@@ -115,7 +115,7 @@ class VehicleController extends Controller
             Vehicle::TYPE_TRUCK => 'Truck',
             Vehicle::TYPE_BUS => 'Bus',
             Vehicle::TYPE_MOTORCYCLE => 'Motorcycle',
-            Vehicle::TYPE_TRAILER => 'Trailer'
+            Vehicle::TYPE_TRAILER => 'Trailer',
         ];
 
         return view('vehicle-owner.vehicles.edit', compact('vehicle', 'vehicleTypes'));
@@ -129,14 +129,14 @@ class VehicleController extends Controller
         $this->authorize('update', $vehicle);
 
         $validated = $request->validate([
-            'plate_number' => 'required|string|unique:vehicles,plate_number,' . $vehicle->id . '|max:20',
+            'plate_number' => 'required|string|unique:vehicles,plate_number,'.$vehicle->id.'|max:20',
             'vehicle_type' => 'required|string',
             'brand_model' => 'required|string|max:100',
-            'year_of_manufacture' => 'required|integer|min:1900|max:' . date('Y'),
-            'vin' => 'nullable|string|unique:vehicles,vin,' . $vehicle->id . '|max:50',
+            'year_of_manufacture' => 'required|integer|min:1900|max:'.date('Y'),
+            'vin' => 'nullable|string|unique:vehicles,vin,'.$vehicle->id.'|max:50',
             'engine_number' => 'nullable|string|max:50',
             'color' => 'nullable|string|max:50',
-            'engine_capacity' => 'nullable|numeric|min:0'
+            'engine_capacity' => 'nullable|numeric|min:0',
         ]);
 
         $vehicle->update($validated);
@@ -170,7 +170,7 @@ class VehicleController extends Controller
         $requiredDocuments = [
             'vehicle_license' => 'Vehicle License',
             'insurance' => 'Insurance Certificate',
-            'roadworthiness_certificate' => 'Roadworthiness Certificate'
+            'roadworthiness_certificate' => 'Roadworthiness Certificate',
         ];
 
         $documentStatus = [];
@@ -186,7 +186,7 @@ class VehicleController extends Controller
                 'document' => $document,
                 'status' => $document?->status ?? 'missing',
                 'is_expired' => $document && $document->isExpired(),
-                'days_until_expiry' => $document ? $document->daysUntilExpiry() : null
+                'days_until_expiry' => $document ? $document->daysUntilExpiry() : null,
             ];
         }
 

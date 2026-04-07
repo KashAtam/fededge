@@ -2,16 +2,16 @@
 
 namespace App\Providers;
 
+use App\Models\Document;
+use App\Models\Vehicle;
+use App\Policies\DocumentPolicy;
+use App\Policies\VehiclePolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
-use App\Models\Vehicle;
-use App\Models\Document;
-use App\Policies\VehiclePolicy;
-use App\Policies\DocumentPolicy;
 
 class AppServiceProvider extends ServiceProvider
 {

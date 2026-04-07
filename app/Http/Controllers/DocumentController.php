@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Document;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class DocumentController extends Controller
 {
@@ -36,7 +36,7 @@ class DocumentController extends Controller
             Document::TYPE_INSURANCE => 'Insurance Certificate',
             Document::TYPE_ROADWORTHINESS_CERTIFICATE => 'Roadworthiness Certificate',
             Document::TYPE_REGISTRATION_CERTIFICATE => 'Registration Certificate',
-            Document::TYPE_INSPECTION_REPORT => 'Inspection Report'
+            Document::TYPE_INSPECTION_REPORT => 'Inspection Report',
         ];
 
         return view('vehicle-owner.documents.create', compact('vehicle', 'documentTypes'));
@@ -53,13 +53,13 @@ class DocumentController extends Controller
             'document_type' => 'required|in:drivers_license,vehicle_license,insurance,roadworthiness_certificate,registration_certificate,inspection_report',
             'file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // 5MB max
             'issue_date' => 'required|date',
-            'expiry_date' => 'required|date|after_or_equal:issue_date'
+            'expiry_date' => 'required|date|after_or_equal:issue_date',
         ]);
 
         // Store file
         $file = $request->file('file');
         $originalName = $file->getClientOriginalName();
-        $filePath = $file->store('documents/' . $vehicle->id, 'local');
+        $filePath = $file->store('documents/'.$vehicle->id, 'local');
 
         // Create document record
         Document::create([
@@ -69,7 +69,7 @@ class DocumentController extends Controller
             'original_filename' => $originalName,
             'issue_date' => $validated['issue_date'],
             'expiry_date' => $validated['expiry_date'],
-            'status' => Document::STATUS_PENDING
+            'status' => Document::STATUS_PENDING,
         ]);
 
         return redirect()->route('document.index')
@@ -95,7 +95,7 @@ class DocumentController extends Controller
     {
         $this->authorize('view', $document);
 
-        if (!Storage::exists($document->file_path)) {
+        if (! Storage::exists($document->file_path)) {
             abort(404, 'File not found.');
         }
 
@@ -110,7 +110,7 @@ class DocumentController extends Controller
         $this->authorize('delete', $document);
 
         // Only allow deletion if document is pending or rejected
-        if (!in_array($document->status, [Document::STATUS_PENDING, Document::STATUS_REJECTED])) {
+        if (! in_array($document->status, [Document::STATUS_PENDING, Document::STATUS_REJECTED])) {
             return back()->with('error', 'Cannot delete approved or expired documents.');
         }
 
@@ -153,7 +153,7 @@ class DocumentController extends Controller
         $validated = $request->validate([
             'file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'issue_date' => 'required|date',
-            'expiry_date' => 'required|date|after_or_equal:issue_date'
+            'expiry_date' => 'required|date|after_or_equal:issue_date',
         ]);
 
         // Delete old file
@@ -164,7 +164,7 @@ class DocumentController extends Controller
         // Store new file
         $file = $request->file('file');
         $originalName = $file->getClientOriginalName();
-        $filePath = $file->store('documents/' . $document->vehicle_id, 'local');
+        $filePath = $file->store('documents/'.$document->vehicle_id, 'local');
 
         // Update document record
         $document->update([
@@ -173,7 +173,7 @@ class DocumentController extends Controller
             'issue_date' => $validated['issue_date'],
             'expiry_date' => $validated['expiry_date'],
             'status' => Document::STATUS_PENDING,
-            'admin_feedback' => null
+            'admin_feedback' => null,
         ]);
 
         return redirect()->route('document.show', $document)

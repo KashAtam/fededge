@@ -13,11 +13,11 @@ class EnsureUserIsRoadOfficer
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return redirect()->route('login');
         }
 
-        if (!auth()->user()->isRoadOfficer()) {
+        if (! auth()->user()->isRoadOfficer()) {
             abort(403, 'Unauthorized action.');
         }
 

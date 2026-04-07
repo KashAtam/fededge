@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'type',
     'related_type',
     'related_id',
-    'read_at'
+    'read_at',
 ])]
 class Notification extends Model
 {
@@ -22,8 +22,11 @@ class Notification extends Model
 
     // Type constants
     const TYPE_INFO = 'info';
+
     const TYPE_WARNING = 'warning';
+
     const TYPE_SUCCESS = 'success';
+
     const TYPE_ERROR = 'error';
 
     /**

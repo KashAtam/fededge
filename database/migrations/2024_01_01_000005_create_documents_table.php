@@ -20,7 +20,7 @@ return new class extends Migration
                 'insurance',
                 'roadworthiness_certificate',
                 'registration_certificate',
-                'inspection_report'
+                'inspection_report',
             ]);
             $table->string('file_path');
             $table->string('original_filename');

@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminDashboardController;
-use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\RoadOfficerController;
+use App\Http\Controllers\VehicleController;
+use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::view('/', 'welcome')->name('home');
@@ -12,7 +12,7 @@ Route::view('/', 'welcome')->name('home');
 // Authenticated user routes
 Route::middleware('auth')->group(function () {
     // Vehicle Owner routes
-    Route::middleware('role:vehicle_owner').group(function () {
+    Route::middleware('role:vehicle_owner')->group(function () {
         Route::get('/dashboard', [VehicleController::class, 'dashboard'])->name('dashboard');
         Route::get('/vehicles', [VehicleController::class, 'index'])->name('vehicle.index');
         Route::get('/vehicles/create', [VehicleController::class, 'create'])->name('vehicle.create');
@@ -34,7 +34,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // Road Officer routes
-    Route::middleware('role:road_officer').prefix('verification')->group(function () {
+    Route::middleware('role:road_officer')->prefix('verification')->group(function () {
         Route::get('/dashboard', [RoadOfficerController::class, 'dashboard'])->name('officer.dashboard');
         Route::get('/search', [RoadOfficerController::class, 'search'])->name('officer.search');
         Route::post('/search', [RoadOfficerController::class, 'searchVehicle'])->name('officer.searchVehicle');
@@ -43,7 +43,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // Admin routes
-    Route::middleware('role:admin').prefix('admin')->group(function () {
+    Route::middleware('role:admin')->prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
         Route::get('/vehicles', [AdminDashboardController::class, 'vehicles'])->name('admin.vehicles.index');

@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'color',
     'engine_capacity',
     'owner_id',
-    'status'
+    'status',
 ])]
 class Vehicle extends Model
 {
@@ -26,14 +26,20 @@ class Vehicle extends Model
 
     // Status constants
     const STATUS_ACTIVE = 'active';
+
     const STATUS_INACTIVE = 'inactive';
+
     const STATUS_SUSPENDED = 'suspended';
 
     // Vehicle type constants
     const TYPE_CAR = 'car';
+
     const TYPE_TRUCK = 'truck';
+
     const TYPE_BUS = 'bus';
+
     const TYPE_MOTORCYCLE = 'motorcycle';
+
     const TYPE_TRAILER = 'trailer';
 
     /**
@@ -90,7 +96,7 @@ class Vehicle extends Model
                 ->where('expiry_date', '>', now())
                 ->first();
 
-            if (!$document) {
+            if (! $document) {
                 return false;
             }
         }
@@ -137,7 +143,7 @@ class Vehicle extends Model
             ->orderBy('expiry_date', 'asc')
             ->first();
 
-        if (!$nextExpiry) {
+        if (! $nextExpiry) {
             return null;
         }
 

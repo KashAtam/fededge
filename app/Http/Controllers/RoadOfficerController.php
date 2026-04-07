@@ -53,22 +53,22 @@ class RoadOfficerController extends Controller
 
         if ($query) {
             $vehicle = Vehicle::with(['owner', 'documents'])
-                ->where('plate_number', 'ilike', '%' . $query . '%')
-                ->orWhere('vin', 'ilike', '%' . $query . '%')
+                ->where('plate_number', 'ilike', '%'.$query.'%')
+                ->orWhere('vin', 'ilike', '%'.$query.'%')
                 ->first();
 
-            if (!$vehicle) {
+            if (! $vehicle) {
                 $notFound = true;
             } else {
                 // Add to recent verifications
                 $recentVerifications = session()->get('recent_verifications', []);
                 $verification = [
                     'plate_number' => $vehicle->plate_number,
-                    'checked_at' => now()->format('Y-m-d H:i:s')
+                    'checked_at' => now()->format('Y-m-d H:i:s'),
                 ];
 
                 // Remove duplicate if exists
-                $recentVerifications = array_filter($recentVerifications, fn($v) => $v['plate_number'] !== $vehicle->plate_number);
+                $recentVerifications = array_filter($recentVerifications, fn ($v) => $v['plate_number'] !== $vehicle->plate_number);
 
                 array_unshift($recentVerifications, $verification);
                 $recentVerifications = array_slice($recentVerifications, 0, 10);
@@ -95,7 +95,7 @@ class RoadOfficerController extends Controller
         $requiredDocuments = [
             'vehicle_license' => 'Vehicle License',
             'insurance' => 'Insurance Certificate',
-            'roadworthiness_certificate' => 'Roadworthiness Certificate'
+            'roadworthiness_certificate' => 'Roadworthiness Certificate',
         ];
 
         $documentDetails = [];
@@ -114,7 +114,7 @@ class RoadOfficerController extends Controller
                     'expiry_date' => $document->expiry_date->format('Y-m-d'),
                     'is_expired' => $document->isExpired(),
                     'days_until_expiry' => $document->daysUntilExpiry(),
-                    'file_path' => $document->file_path
+                    'file_path' => $document->file_path,
                 ];
             } else {
                 $documentDetails[$type] = [
@@ -124,7 +124,7 @@ class RoadOfficerController extends Controller
                     'expiry_date' => null,
                     'is_expired' => false,
                     'days_until_expiry' => null,
-                    'file_path' => null
+                    'file_path' => null,
                 ];
             }
         }

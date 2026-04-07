@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use App\Models\Vehicle;
 use App\Models\Document;
 use App\Models\Notification;
+use App\Models\User;
+use App\Models\Vehicle;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
                 'password' => bcrypt('password'),
                 'role' => 'admin',
                 'phone' => '0700000000',
-                'address' => '123 Main Street, City'
+                'address' => '123 Main Street, City',
             ]
         );
 

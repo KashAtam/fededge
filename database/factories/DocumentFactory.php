@@ -3,8 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\Document;
-use App\Models\Vehicle;
 use App\Models\User;
+use App\Models\Vehicle;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -25,7 +25,7 @@ class DocumentFactory extends Factory
             'insurance',
             'roadworthiness_certificate',
             'registration_certificate',
-            'inspection_report'
+            'inspection_report',
         ];
 
         $issueDate = $this->faker->dateTimeBetween('-2 years');
@@ -34,8 +34,8 @@ class DocumentFactory extends Factory
         return [
             'vehicle_id' => Vehicle::factory(),
             'document_type' => $this->faker->randomElement($documentTypes),
-            'file_path' => 'documents/' . $this->faker->uuid() . '.pdf',
-            'original_filename' => $this->faker->word() . '.pdf',
+            'file_path' => 'documents/'.$this->faker->uuid().'.pdf',
+            'original_filename' => $this->faker->word().'.pdf',
             'issue_date' => $issueDate,
             'expiry_date' => $expiryDate,
             'status' => $this->faker->randomElement(['approved', 'pending']),

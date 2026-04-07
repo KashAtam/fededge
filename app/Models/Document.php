@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'status',
     'admin_feedback',
     'approved_by',
-    'approved_at'
+    'approved_at',
 ])]
 class Document extends Model
 {
@@ -25,16 +25,24 @@ class Document extends Model
 
     // Status constants
     const STATUS_PENDING = 'pending';
+
     const STATUS_APPROVED = 'approved';
+
     const STATUS_REJECTED = 'rejected';
+
     const STATUS_EXPIRED = 'expired';
 
     // Document type constants
     const TYPE_DRIVERS_LICENSE = 'drivers_license';
+
     const TYPE_VEHICLE_LICENSE = 'vehicle_license';
+
     const TYPE_INSURANCE = 'insurance';
+
     const TYPE_ROADWORTHINESS_CERTIFICATE = 'roadworthiness_certificate';
+
     const TYPE_REGISTRATION_CERTIFICATE = 'registration_certificate';
+
     const TYPE_INSPECTION_REPORT = 'inspection_report';
 
     /**
@@ -78,7 +86,7 @@ class Document extends Model
      */
     public function isExpiringSoon(int $days = 7): bool
     {
-        return now()->addDays($days) >= $this->expiry_date && !$this->isExpired();
+        return now()->addDays($days) >= $this->expiry_date && ! $this->isExpired();
     }
 
     /**

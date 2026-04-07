@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Vehicle;
 use App\Models\Document;
 use App\Models\User;
+use App\Models\Vehicle;
 use Illuminate\View\View;
 
 class AdminDashboardController extends Controller
@@ -24,7 +24,7 @@ class AdminDashboardController extends Controller
 
         // Get compliant vs non-compliant vehicles
         $vehicles = Vehicle::with('documents')->get();
-        $compliantVehicles = $vehicles->filter(fn($v) => $v->isCompliant())->count();
+        $compliantVehicles = $vehicles->filter(fn ($v) => $v->isCompliant())->count();
         $nonCompliantVehicles = $totalVehicles - $compliantVehicles;
 
         // Get recent pending documents
@@ -136,7 +136,7 @@ class AdminDashboardController extends Controller
         $roles = [
             'admin' => 'Admin',
             'vehicle_owner' => 'Vehicle Owner',
-            'road_officer' => 'Road Officer'
+            'road_officer' => 'Road Officer',
         ];
 
         return view('admin.users.edit', compact('user', 'roles'));
@@ -148,7 +148,7 @@ class AdminDashboardController extends Controller
     public function userUpdate(User $user)
     {
         $validated = request()->validate([
-            'role' => 'required|in:admin,vehicle_owner,road_officer'
+            'role' => 'required|in:admin,vehicle_owner,road_officer',
         ]);
 
         $user->update($validated);
@@ -185,14 +185,14 @@ class AdminDashboardController extends Controller
     public function documentApprove(Document $document)
     {
         $validated = request()->validate([
-            'admin_feedback' => 'nullable|string|max:1000'
+            'admin_feedback' => 'nullable|string|max:1000',
         ]);
 
         $document->update([
             'status' => 'approved',
             'approved_by' => auth()->id(),
             'approved_at' => now(),
-            'admin_feedback' => $validated['admin_feedback'] ?? null
+            'admin_feedback' => $validated['admin_feedback'] ?? null,
         ]);
 
         return redirect()->route('admin.documents.show', $document)
@@ -205,12 +205,12 @@ class AdminDashboardController extends Controller
     public function documentReject(Document $document)
     {
         $validated = request()->validate([
-            'admin_feedback' => 'required|string|max:1000'
+            'admin_feedback' => 'required|string|max:1000',
         ]);
 
         $document->update([
             'status' => 'rejected',
-            'admin_feedback' => $validated['admin_feedback']
+            'admin_feedback' => $validated['admin_feedback'],
         ]);
 
         return redirect()->route('admin.documents.show', $document)
